@@ -1,5 +1,5 @@
 <?php
-require_once("Face.class.php");
+require_once(dirname(__FILE__) . "/Face.class.php");
 if (!empty($_FILES['photo1']['tmp_name'])) {
     $photo1_tmp = $_FILES['photo1']['tmp_name'];
     $photo2_tmp = $_FILES['photo2']['tmp_name'];
