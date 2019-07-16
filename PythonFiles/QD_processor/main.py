@@ -35,17 +35,7 @@ def process():
     ent1.delete(0, END)
     ent2.delete(0, END)
     ent3.delete(0, END)
-    # butt_value = radiobutt.get()
-    # if butt_value == 3:
-    #     area = 0.09
-    # elif butt_value == 2:
-    #     area = 0.04
-    # elif butt_value == 1:
-    #     area = 0.01
-    # elif butt_value == 0:
-    #     area = 0.0004
-    # else:
-    #     area = 0.0706
+    ent_r.delete(0, END)
     try:
         if text_file and not isinstance(text_file, list):
             text_file.write_excel_data()
@@ -55,6 +45,7 @@ def process():
                 ent1.insert(0, result['-0.5V']['EQE'])
                 ent2.insert(0, result['-2V']['J (nA/cm2)'])
                 ent3.insert(0, result['-2V']['EQE'])
+                ent_r.insert(0, result['Rs'])
     except ProcessException:
         pass
 
@@ -89,7 +80,7 @@ def add(point_obj):
         device_id.clear()
         point_objs.clear()
         rebuild_frame_device()
-        root.geometry('590x325+300+150')
+        # root.geometry('590x325+300+150')
 
     def delete(event):
         del point_objs[int(event.widget['text'][-1])]
@@ -131,7 +122,7 @@ def add(point_obj):
     if point_objs:
         device_obj = PointIVTxts(point_objs)
 
-        root.geometry('1010x325+300+150')
+        # root.geometry('1010x325+300+150')
         rebuild_frame_device()
         can.grid(row=0, column=1)
 
@@ -175,9 +166,13 @@ def add(point_obj):
               text='EQE',
               font=('Arial', 10, ''),
               bg='Snow').grid(row=1, column=4, padx=5)
+        Label(frm_point,
+              text='Rs',
+              font=('Arial', 10, ''),
+              bg='Snow').grid(row=1, column=5, padx=5)
         label_text = [[]]
         for row in range(8):
-            for column in range(5):
+            for column in range(6):
                 label_text[row].append(StringVar())
                 Label(frm_point,
                       textvariable=label_text[row][column],
@@ -185,7 +180,7 @@ def add(point_obj):
                       bg='Snow').grid(row=row+2, column=column)
             label_text.append([])
         average_data = []
-        for column in range(5):
+        for column in range(6):
             average_data.append((StringVar()))
             Label(frm_point,
                   textvariable=average_data[column],
@@ -245,7 +240,7 @@ device_id = set()
 point_objs = []
 
 root = Tk()
-root.geometry('590x325+300+150')
+# root.geometry('590x325+300+150')
 root.title('Huawei Processor')
 
 frm_whole = Frame(root, bg='Snow')
@@ -308,7 +303,7 @@ ent_power.grid(row=1, column=0)
 ent_power.insert(0, 1)
 ent_area = Entry(frm_parameter)
 ent_area.grid(row=1, column=1, padx=5)
-ent_area.insert(0, 0.0706)
+ent_area.insert(0, 0.0706858)
 ent_wavelength = Entry(frm_parameter)
 ent_wavelength.grid(row=1, column=2)
 ent_wavelength.insert(0, 970)
@@ -344,6 +339,10 @@ Label(frm_data,
       text='EQE',
       font=('Arial', 13, ''),
       bg='Snow').grid(row=1, column=3)
+Label(frm_data,
+      text='Rs',
+      font=('Arial', 13, ''),
+      bg='Snow').grid(row=1, column=4)
 ent0 = Entry(frm_data)
 ent0.grid(row=2, column=0)
 ent1 = Entry(frm_data)
@@ -352,6 +351,8 @@ ent2 = Entry(frm_data)
 ent2.grid(row=2, column=2)
 ent3 = Entry(frm_data)
 ent3.grid(row=2, column=3)
+ent_r = Entry(frm_data)
+ent_r.grid(row=2, column=4, sticky=W)
 frm_data.grid(row=4, column=0, sticky=W, padx=6, pady=5)
 frm_main.grid(row=0, column=0, sticky=N)
 

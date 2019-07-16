@@ -2,6 +2,7 @@ import os
 import matplotlib.pyplot as plt
 from ExcelFile import PointIVXlsx, PointIVXlsxs
 from warnings import filterwarnings
+import numpy as np
 
 filterwarnings('ignore')
 
@@ -50,6 +51,7 @@ class PointIVTxt(TextFileInterface):
         self.add_current_density()
         self.dark_current_data = self.get_dark_current_data()
         self.light_current_data = self.get_light_current_data()
+        self.series_resistance = self.get_series_resistance()
 
     def get_device_id(self):
         return os.path.basename(os.path.dirname(self.path))
@@ -85,7 +87,7 @@ class PointIVTxt(TextFileInterface):
         return current_a * 1e9 / area_cm2
 
     @staticmethod
-    def get_external_quantum_effiency(dark_current_a, light_current_a, power_mw, area_cm2, wavelength_nm):
+    def get_external_quantum_efficiency(dark_current_a, light_current_a, power_mw, area_cm2, wavelength_nm):
         return (light_current_a - dark_current_a) * 1240 / (power_mw * 1e-3 * area_cm2 * wavelength_nm)
 
     def add_current_density(self):
@@ -99,6 +101,22 @@ class PointIVTxt(TextFileInterface):
     def get_light_current_data(self):
         return self.get_single_curve_data(2)
 
+    def get_series_resistance(self):
+        data = self.dark_current_data
+        data['I1 (A)'].reverse()
+        voltage = []
+        current = []
+        for index, value in enumerate(data['I1 (A)']):
+            if float(value) < 0:
+                voltage.append(float(data['V1 (V)'][index]))
+                current.append(float(data['I1 (A)'][index]))
+        voltage = np.array(voltage[-51:-11])
+        current = np.negative(np.array(current[-51:-11]))
+        gd = np.gradient(current) / np.gradient(voltage)
+        i_gd = current / gd
+        [slope, intercept] = np.polyfit(current, i_gd, 1)
+        return slope
+
     def get_certain_jdark(self, voltage_v):
         for index, value in enumerate(self.dark_current_data['V1 (V)']):
             if value == voltage_v:
@@ -108,7 +126,7 @@ class PointIVTxt(TextFileInterface):
     def get_certain_eqe(self, voltage_v):
         for index, value in enumerate(self.light_current_data['V1 (V)']):
             if value == voltage_v:
-                return self.get_external_quantum_effiency(
+                return self.get_external_quantum_efficiency(
                     self.dark_current_data['I1 (A)'][index],
                     self.light_current_data['I1 (A)'][index],
                     self.power_mw,
@@ -149,7 +167,8 @@ class PointIVTxt(TextFileInterface):
             '-2V': {
                 'J (nA/cm2)': '%.3f' % self.get_certain_jdark(2),
                 'EQE': '%.3f' % self.get_certain_eqe(2)
-            }
+            },
+            'Rs': '%.3f' % self.series_resistance
         }
 
     def write_excel_data(self):
