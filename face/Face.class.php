@@ -9,7 +9,7 @@ class Face
     public function __construct($image_file)
     {
         $this->image_file = $image_file;
-        $this->detectFace($this->image_file);
+        $this->detectFace();
     }
 
     public function __set($name, $value)
