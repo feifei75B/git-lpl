@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from ExcelFile import PointIVXlsx, PointIVXlsxs
 from warnings import filterwarnings
 import numpy as np
+from copy import deepcopy
 
 filterwarnings('ignore')
 
@@ -102,7 +103,7 @@ class PointIVTxt(TextFileInterface):
         return self.get_single_curve_data(2)
 
     def get_series_resistance(self):
-        data = self.dark_current_data
+        data = deepcopy(self.dark_current_data)
         data['I1 (A)'].reverse()
         voltage = []
         current = []
