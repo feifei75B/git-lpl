@@ -3,30 +3,25 @@ class PlotSettings(object):
 
     def __init__(self):
         # 构造函数
-        self.log_x_label = 'Voltage (V)'
-        self.log_y_label = 'Current Density (nA/cm2)'
         self.line_x_label = 'Voltage (V)'
         self.line_y_label = 'Current Density (nA/cm2)'
-        self.line_x_min = None
-        self.line_x_max = None
-        self.line_y_min = None
-        self.line_y_max = None
+        self.line_x_min = ''
+        self.line_x_max = ''
+        self.line_y_min = ''
+        self.line_y_max = ''
+        self.log_x_label = 'Voltage (V)'
+        self.log_y_label = 'Current Density (nA/cm2)'
+        self.log_x_min = ''
+        self.log_x_max = ''
+        self.log_y_min = ''
+        self.log_y_max = ''
 
 
-class LightSettings(object):
-    """光源设置类"""
+class ParaSettings(object):
+    """参数设置类"""
 
     def __init__(self):
         # 构造函数
+        self.area_cm2 = 0.0706858
         self.power_mw = 1
         self.wavelength_nm = 970
-
-
-class DeviceSettings(object):
-    """器件设置类"""
-
-    def __init__(self):
-        # 构造函数
-        self.id = ''
-        self.label = ''
-        self.area_cm2 = 0.0706858

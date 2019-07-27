@@ -1,9 +1,7 @@
 import os
+import re
 import pandas as pd
 from point import AgilentPoint
-from plot import Plot
-import tkinter as tk
-import tkinter.filedialog as tkf
 
 
 class Device(object):
@@ -13,11 +11,18 @@ class Device(object):
         # 构造函数
         self.paths = paths
         self.area_cm2 = area_cm2
-        self.power_mw = power_mw
+        self.power_mw = self.get_power(power_mw)
         self.wavelength_nm = wavelength_nm
         self.id = os.path.basename(os.path.dirname(paths[0]))
         self.points = self.get_points_object()
         self.results = self.get_results_df()
+
+    def get_power(self, power_mw):
+        search_obj = re.search(r'\d{8}\s(\d+)', self.paths[0])
+        if search_obj:
+            return float(search_obj.group().split(' ')[-1]) / 1000
+        else:
+            return power_mw
 
     @staticmethod
     def get_point_id(path):
@@ -99,20 +104,3 @@ class SiliconDevice(Device):
                 self.power_mw,
                 self.wavelength_nm
             ) for path in self.paths]
-
-
-if __name__ == '__main__':
-    root = tk.Tk()
-    paths = tkf.askopenfilenames(filetypes=[('Text Files', '*.txt*')])
-    device = SiliconDevice(paths, 0.0706858, 0.153, 970)
-    print(device.results)
-    print(device.id)
-    Plot.plot_log_curves(device.id,
-                         'all',
-                         'Voltage (V)',
-                         'Current Density (nA/cm2)',
-                         None, None, None, None,
-                         [device],
-                         [device.id])
-    root.mainloop()
-

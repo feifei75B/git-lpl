@@ -19,9 +19,9 @@ class Plot(object):
             ax.axvline(x=0, color='k', linewidth=1)
             ax.xaxis.set_label_text(x_label)
             ax.yaxis.set_label_text(y_label)
-            if x_min is not None and x_max is not None:
+            if x_min and x_max:
                 ax.set_xlim(x_min, x_max)
-            if y_min is not None and y_max is not None:
+            if y_min and y_max:
                 ax.set_ylim(y_min, y_max)
             ax.legend(loc='lower right', frameon=False)
             plt.show()
@@ -42,9 +42,9 @@ class Plot(object):
             ax.set_yscale('log')
             ax.xaxis.set_label_text(x_label)
             ax.yaxis.set_label_text(y_label)
-            if x_min is not None and x_max is not None:
+            if x_min and x_max:
                 ax.set_xlim(x_min, x_max)
-            if y_min is not None and y_max is not None:
+            if y_min and y_max:
                 ax.set_ylim(y_min, y_max)
             ax.legend(loc='lower right', frameon=False)
             plt.show()
