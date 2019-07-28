@@ -6,7 +6,7 @@ class Plot(object):
 
     @staticmethod
     def plot_line_curves(title, state, x_label, y_label, x_min, x_max, y_min, y_max, devices: list, labels: list):
-        """画线性曲线，静态方法"""
+        # 作线性曲线
         colors = ['navy', 'orange', 'forestgreen', 'red', 'gray', 'purple', 'royalblue', 'brown', 'teal', 'olive']
         if devices:
             plt.figure(title)
@@ -28,7 +28,7 @@ class Plot(object):
 
     @staticmethod
     def plot_log_curves(title, state, x_label, y_label, x_min, x_max, y_min, y_max, devices: list, labels: list):
-        """画线性曲线，静态方法"""
+        # 作线性曲线
         colors = ['navy', 'orange', 'forestgreen', 'red', 'gray', 'purple', 'royalblue', 'brown', 'teal', 'olive']
         if devices:
             plt.figure(title)

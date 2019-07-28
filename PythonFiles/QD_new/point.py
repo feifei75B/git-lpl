@@ -23,6 +23,8 @@ class Point(object):
         if self.dark_df is not None:
             dark_diff_df = (self.dark_df['voltage_v'].copy() - voltage_v).abs()
             return self.dark_df.loc[dark_diff_df == dark_diff_df.min(), 'current density_na/cm2'].iloc[0]
+        else:
+            return 0
 
     def get_certain_external_quantum_efficiency(self, voltage_v):
         # 获取特定电压下外量子效率
@@ -33,17 +35,20 @@ class Point(object):
             light_current_a = self.light_df.loc[light_diff_df == light_diff_df.min(), 'current_a'].abs().iloc[0]
             return (light_current_a - dark_current_a) * 1240 / \
                    (self.area_cm2 * 1e-3 * self.power_mw * self.wavelength_nm)
+        else:
+            return 0
 
     def get_result_df(self):
         # 获取结果，返回dataframe
         result = [{
-            'id': self.id,
-            '-0.5V jdark(nA/cm2)': self.get_certain_dark_current_density(-0.5),
+            'ID': self.id,
+            '-0.5V jdark (nA/cm2)': self.get_certain_dark_current_density(-0.5),
             '-0.5V eqe': self.get_certain_external_quantum_efficiency(-0.5),
-            '-2V jdark(nA/cm2)': self.get_certain_dark_current_density(-2.0),
+            '-2V jdark (nA/cm2)': self.get_certain_dark_current_density(-2.0),
             '-2V eqe': self.get_certain_external_quantum_efficiency(-2.0)
         }]
-        return pd.DataFrame(result, columns=['id', '-0.5V jdark(nA/cm2)', '-0.5V eqe', '-2V jdark(nA/cm2)', '-2V eqe'])
+        return pd.DataFrame(result,
+                            columns=['ID', '-0.5V jdark (nA/cm2)', '-0.5V eqe', '-2V jdark (nA/cm2)', '-2V eqe'])
 
     def add_dark_line_curve(self, ax, label, color):
         # 添加暗态线性曲线

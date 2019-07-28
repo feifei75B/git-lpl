@@ -1,33 +1,36 @@
 import sys
+import pandas as pd
 import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
-from device import *
+from device import Device, SiliconDevice
 from plot import Plot
-from settings import *
+from settings import ParaSettings, PlotSettings
 
 # 全局变量
 device_list = []
 legend_list = []
-device_index = 0
+frame_list = []
+device_num = 0
+delete_buttons = []
 pls = PlotSettings()
 pas = ParaSettings()
 # 菜单字典
 CN_MENU_DICT = {'文件': {'Item': ['选择器件数据',
                                 '选择硅片器件数据',
                                 '导出excel文件',
-                                '保存txt文件',
                                 '退出'],
                        'Command': ['select_device_data',
                                    'select_silicon_device_data',
                                    'export_excel',
-                                   'save_as_txt',
                                    'exit_program']
                        },
-                '器件': {'Item': ['添加器件',
+                '器件': {'Item': ['修改图例',
+                                '添加器件',
                                 '删除上一个器件',
                                 '清空器件'],
-                       'Command': ['add_device',
+                       'Command': ['modify_legend',
+                                   'add_device',
                                    'delete_last_device',
                                    'clear_devices']
                        },
@@ -36,7 +39,7 @@ CN_MENU_DICT = {'文件': {'Item': ['选择器件数据',
                                 '器件线性曲线',
                                 '暗态对数曲线',
                                 '光态对数曲线',
-                                '器件对比曲线'],
+                                '器件对数曲线'],
                        'Command': ['plot_dark_line_curves',
                                    'plot_light_line_curves',
                                    'plot_device_line_curves',
@@ -58,17 +61,17 @@ CN_MENU_DICT = {'文件': {'Item': ['选择器件数据',
 EN_MENU_DICT = {'File': {'Item': ['Select Device Data',
                                   'Select Silicon Device Data',
                                   'Export Excel File',
-                                  'Save As Text File',
                                   'Exit'],
                          'Command': ['select_device_data',
                                      'select_silicon_device_data',
                                      'export_excel',
-                                     'save_as_txt',
                                      'exit_program']},
-                'Device': {'Item': ['Add Device',
+                'Device': {'Item': ['Modify Legend',
+                                    'Add Device',
                                     'Delete Last Device',
                                     'Clear Devices'],
-                           'Command': ['add_device',
+                           'Command': ['modify_legend',
+                                       'add_device',
                                        'delete_last_device',
                                        'clear_devices']},
                 'Plot': {'Item': ['Plot Dark Line Curves',
@@ -110,14 +113,13 @@ class Application(tk.Tk):
         self.tv_welcome = tk.StringVar(value='Thanks for using! Please select IV files')
         # 结果框架
         self.frm_result = ttk.Frame(master=self.frm)
-        self.frm_list = []
         self.create_window()
 
     def create_window(self):
         # 创建主窗口
         self.title('QDPD Processor')
         self.frm.grid(sticky=tk.W)
-        self.frm_welcome.grid(row=0, column=0, padx=15, sticky=tk.W)
+        self.frm_welcome.grid(row=0, column=0, padx=5, pady=5, sticky=tk.W)
         ttk.Label(master=self.frm_welcome,
                   textvariable=self.tv_welcome,
                   justify='left',
@@ -126,7 +128,7 @@ class Application(tk.Tk):
 
     def add_menu(self, menu_class_name, menu_dict):
         # 添加菜单
-        menu_class_name(self, menu_dict)
+        menu_class_name(self, self.frm_result, menu_dict)
 
 
 class LegendSettingWindow(tk.Toplevel):
@@ -136,10 +138,10 @@ class LegendSettingWindow(tk.Toplevel):
         super().__init__()
         self.frm = ttk.Frame(master=self)
         self.tv_legend = tk.StringVar()
-        self.legend = ''
         self.create_window()
 
     def create_window(self):
+        # 创建图例设置窗口
         self.title('图例设置 Legend Setting')
         self.focus_set()
         self.frm.grid()
@@ -155,7 +157,10 @@ class LegendSettingWindow(tk.Toplevel):
                    command=self.legend_setting_save).grid(row=0, column=2, padx=5, pady=5, sticky=tk.W)
 
     def legend_setting_save(self):
-        self.legend = self.tv_legend.get()
+        # 保存图例设置
+        global legend_list
+        if len(legend_list) > device_num:
+            legend_list[device_num] = self.tv_legend.get()
         self.destroy()
 
 
@@ -445,9 +450,10 @@ class PlotSettingWindow(tk.Toplevel):
 class AppMenu(object):
     """菜单类"""
 
-    def __init__(self, root, menu_dict):
+    def __init__(self, root, frm_result, menu_dict):
         # 初始化菜单
         self.root = root
+        self.frm_result = frm_result
         self.menu_bar = tk.Menu(self.root)  # 创建菜单栏
         self.menu_dict = menu_dict
         for key, value in self.menu_dict.items():
@@ -458,10 +464,9 @@ class AppMenu(object):
                 menu_var.add_command(label=item, command=getattr(self, value['Command'][index]))
             # 判断菜单项不可用情况
             if not device_list and key in ('文件', 'File'):
-                for i in range(2, 4):
-                    menu_var.entryconfig(i, state=tk.DISABLED)
+                menu_var.entryconfig(2, state=tk.DISABLED)
             if not device_list and key in ('器件', 'Device'):
-                for i in range(1, 3):
+                for i in range(0, 4):
                     menu_var.entryconfig(i, state=tk.DISABLED)
             if not device_list and key in ('作图', 'Plot'):
                 for i in range(0, 6):
@@ -478,73 +483,140 @@ class AppMenu(object):
         # 添加菜单栏到窗口
         self.root.config(menu=self.menu_bar)
 
+    def append_device(self, device):
+        # 添加器件到列表
+        global device_list, legend_list, frame_list, delete_buttons
+        if len(device_list) == device_num:
+            device_list.append(device)
+            legend_list.append(device.id)
+            frame_list.append(ttk.Frame(master=self.frm_result))
+        else:
+            device_list[device_num] = device
+            legend_list[device_num] = device.id
+            frame_list[device_num].destroy()
+            delete_buttons = []
+            frame_list[device_num] = ttk.Frame(master=self.frm_result)
+
+    def delete_point(self, point_index):
+        # 删除工作点
+        global device_num
+        device = device_list[device_num].delete_point(point_index)
+        if device is not None:
+            self.append_device(device)
+            self.show_results(device)
+        else:
+            device_list.pop()
+            legend_list.pop()
+            frame_list[-1].destroy()
+            frame_list.pop()
+            device_num = len(device_list)
+        self.root.add_menu(AppMenu, self.menu_dict)
+
+    def show_results(self, device):
+        # 显示器件结果
+        frame = frame_list[device_num]
+        frame.grid(row=device_num, pady=5, sticky=tk.W)
+        ttk.Label(master=frame,
+                  text='Device: ' + device.id,
+                  justify='left',
+                  font=('Arial', 12, 'bold')).grid(row=0, column=0, columnspan=5, sticky=tk.W)
+        for column, label in enumerate(device.results.columns):
+            ttk.Label(master=frame,
+                      text=label,
+                      justify='center',
+                      font=('Arial', 11, '')).grid(row=1, column=column, padx=5, pady=1)
+            for index, value in enumerate(device.results[label]):
+                if label == 'ID':
+                    ttk.Label(master=frame,
+                              text=str(value),
+                              justify='center',
+                              font=('Arial', 11, '')).grid(row=index+2, column=column, padx=2, pady=1)
+                else:
+                    ttk.Label(master=frame,
+                              text='{:.3f}'.format(value),
+                              justify='center',
+                              font=('Arial', 11, '')).grid(row=index + 2, column=column, padx=2, pady=1)
+        for index in range(device.results.shape[0]):
+            butt_delete = ttk.Button(master=frame,
+                                     text='×',
+                                     width=5,
+                                     command=lambda point_index=index: self.delete_point(point_index))
+            butt_delete.grid(row=index + 2, column=device.results.columns.size, padx=10, pady=1)
+            delete_buttons.append(butt_delete)
+
     def select_device_data(self):
         # 选择器件数据
         global device_list
-        paths = filedialog.askopenfilenames(filetypes=[('Text Files', '*.txt*')])
+        paths = list(filedialog.askopenfilenames(filetypes=[('Text Files', '*.txt*')]))
         if paths:
             device = Device(paths, pas.area_cm2, pas.power_mw, pas.wavelength_nm)
-            device_list.append(device)
-            legend_setting = LegendSettingWindow()
-            self.root.wait_window(legend_setting)
-            if legend_setting.legend:
-                legend_list.append(legend_setting.legend)
-            else:
-                legend_list.append(device.id)
+            self.append_device(device)
+            self.show_results(device)
         self.root.add_menu(AppMenu, self.menu_dict)
 
     def select_silicon_device_data(self):
         # 选择硅片器件数据
         global device_list
-        paths = filedialog.askopenfilenames(filetypes=[('Text Files', '*.txt*')])
+        paths = list(filedialog.askopenfilenames(filetypes=[('Text Files', '*.txt*')]))
         if paths:
             silicon_device = SiliconDevice(paths, pas.area_cm2, pas.power_mw, pas.wavelength_nm)
-            device_list.append(silicon_device)
-            legend_setting = LegendSettingWindow()
-            self.root.wait_window(legend_setting)
-            if legend_setting.legend:
-                legend_list.append(legend_setting.legend)
-            else:
-                legend_list.append(silicon_device.id)
+            self.append_device(silicon_device)
+            self.show_results(silicon_device)
         self.root.add_menu(AppMenu, self.menu_dict)
 
     @staticmethod
     def export_excel():
         # 导出excel
-        pass
-
-    @staticmethod
-    def save_as_txt():
-        # 保存txt
-        pass
+        if device_list:
+            excel_path = filedialog.asksaveasfilename(filetypes=[('Excel Files', '*.xlsx')])
+            if excel_path:
+                if not excel_path.endswith('.xlsx'):
+                    excel_path = excel_path + '.xlsx'
+                writer = pd.ExcelWriter(excel_path)
+                for device in device_list:
+                    device.results.to_excel(writer, device.id)
+                writer.save()
 
     @staticmethod
     def exit_program():
         # 退出
         sys.exit()
 
+    @staticmethod
+    def modify_legend():
+        # 修改图例
+        LegendSettingWindow()
+
     def add_device(self):
         # 添加器件
-        global device_index
-        if len(device_list) > device_index:
-            device_index = device_index + 1
+        global device_num, delete_buttons
+        if len(device_list) > device_num:
+            device_num = device_num + 1
+            for button in delete_buttons:
+                button.destroy()
+            delete_buttons = []
         self.root.add_menu(AppMenu, self.menu_dict)
 
     def delete_last_device(self):
         # 删除上一个器件
-        global device_index
+        global device_num
         if device_list:
             device_list.pop()
             legend_list.pop()
-            device_index = len(device_list)
+            frame_list[-1].destroy()
+            frame_list.pop()
+            device_num = len(device_list)
         self.root.add_menu(AppMenu, self.menu_dict)
 
     def clear_devices(self):
         # 清空器件
-        global device_list, device_index, legend_list
+        global device_list, device_num, legend_list, frame_list
         device_list = []
         legend_list = []
-        device_index = 0
+        for frame in frame_list:
+            frame.destroy()
+        frame_list = []
+        device_num = 0
         self.root.add_menu(AppMenu, self.menu_dict)
 
     @staticmethod

@@ -8,5 +8,18 @@
 # print((dark['voltage'] - -0.5).abs().min())
 # print(dark.loc[(dark['voltage'] - -0.5).abs() == (dark['voltage'] - -0.5).abs().min(), 'current'].iloc[0])
 # print(type(dark['voltage'] - -0.5))
-a = []
-print(float('1'))
+# v = dark['voltage']
+# print(type(v))
+# print(dark.index)
+
+import tkinter as tk
+from tkinter import ttk
+
+def a(event):
+    print(event.widget)
+
+root = tk.Tk()
+b = ttk.Button(master=root, text='a')
+b.bind("<Button-1>", a)
+b.pack()
+root.mainloop()
