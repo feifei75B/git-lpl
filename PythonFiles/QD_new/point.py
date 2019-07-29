@@ -42,9 +42,9 @@ class Point(object):
         # 获取结果，返回dataframe
         result = [{
             'ID': self.id,
-            '-0.5V jdark (nA/cm2)': self.get_certain_dark_current_density(-0.5),
+            '-0.5V jdark (nA/cm2)': np.abs(self.get_certain_dark_current_density(-0.5)),
             '-0.5V eqe': self.get_certain_external_quantum_efficiency(-0.5),
-            '-2V jdark (nA/cm2)': self.get_certain_dark_current_density(-2.0),
+            '-2V jdark (nA/cm2)': np.abs(self.get_certain_dark_current_density(-2.0)),
             '-2V eqe': self.get_certain_external_quantum_efficiency(-2.0)
         }]
         return pd.DataFrame(result,

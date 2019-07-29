@@ -24,12 +24,12 @@ class Plot(object):
                 ax.set_xlim(x_min, x_max)
             if y_min and y_max:
                 ax.set_ylim(y_min, y_max)
-            ax.legend(loc='lower right', frameon=False)
+            ax.legend(loc='upper left', frameon=False)
             plt.show()
 
     @staticmethod
     def plot_log_curves(title, state, x_label, y_label, x_min, x_max, y_min, y_max, devices: list, labels: list):
-        # 作线性曲线
+        # 作对数曲线
         colors = ['navy', 'orange', 'forestgreen', 'red', 'gray', 'purple', 'royalblue', 'brown', 'teal', 'olive']
         if devices:
             plt.figure(title)

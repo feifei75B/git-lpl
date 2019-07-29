@@ -34,11 +34,11 @@ CN_MENU_DICT = {'文件': {'Item': ['选择器件数据 (D)',
                                    'delete_last_device',
                                    'clear_devices']
                        },
-                '作图': {'Item': ['暗态线性曲线 (1)',
-                                '光态线性曲线 (2)',
-                                '器件线性曲线 (3)',
-                                '暗态对数曲线 (4)',
-                                '光态对数曲线 (5)',
+                '作图': {'Item': ['暗态线性曲线 (F1)',
+                                '光态线性曲线 (F2)',
+                                '器件线性曲线 (F3)',
+                                '暗态对数曲线 (F4)',
+                                '光态对数曲线 (F5)',
                                 '器件对数曲线 (Space)'],
                        'Command': ['plot_dark_line_curves',
                                    'plot_light_line_curves',
@@ -501,12 +501,12 @@ class AppMenu(object):
         self.root.bind("<BackSpace>", self.delete_last_device)
         self.root.bind("<c>", self.clear_devices)
         self.root.bind("<C>", self.clear_devices)
-        self.root.bind("<1>", self.plot_dark_line_curves)
-        self.root.bind("<2>", self.plot_light_line_curves)
-        self.root.bind("<3>", self.plot_device_line_curves)
-        self.root.bind("<4>", self.plot_dark_log_curves)
-        self.root.bind("<5>", self.plot_light_log_curves)
-        self.root.bind("<6>", self.plot_device_log_curves)
+        self.root.bind("<F1>", self.plot_dark_line_curves)
+        self.root.bind("<F2>", self.plot_light_line_curves)
+        self.root.bind("<F3>", self.plot_device_line_curves)
+        self.root.bind("<F4>", self.plot_dark_log_curves)
+        self.root.bind("<F5>", self.plot_light_log_curves)
+        self.root.bind("<F6>", self.plot_device_log_curves)
         self.root.bind("<space>", self.plot_device_log_curves)
         self.root.bind("<a>", self.add_device)
         self.root.bind("<A>", self.add_device)
