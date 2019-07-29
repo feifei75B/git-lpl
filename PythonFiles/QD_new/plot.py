@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from matplotlib.ticker import LogLocator
 
 
 class Plot(object):
@@ -40,6 +41,7 @@ class Plot(object):
             ax.axhline(y=0, color='k', linewidth=1)
             ax.axvline(x=0, color='k', linewidth=1)
             ax.set_yscale('log')
+            ax.xaxis.set_minor_locator(LogLocator(10))
             ax.xaxis.set_label_text(x_label)
             ax.yaxis.set_label_text(y_label)
             if x_min and x_max:

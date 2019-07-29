@@ -16,30 +16,30 @@ delete_buttons = []
 pls = PlotSettings()
 pas = ParaSettings()
 # 菜单字典
-CN_MENU_DICT = {'文件': {'Item': ['选择器件数据',
-                                '选择硅片器件数据',
-                                '导出excel文件',
+CN_MENU_DICT = {'文件': {'Item': ['选择器件数据 (D)',
+                                '选择硅片器件数据 (S)',
+                                '导出excel文件 (E)',
                                 '退出'],
                        'Command': ['select_device_data',
                                    'select_silicon_device_data',
                                    'export_excel',
                                    'exit_program']
                        },
-                '器件': {'Item': ['修改图例',
-                                '添加器件',
-                                '删除上一个器件',
-                                '清空器件'],
+                '器件': {'Item': ['修改图例 (M)',
+                                '添加器件 (A)',
+                                '删除上一个器件 (Back)',
+                                '清空器件 (C)'],
                        'Command': ['modify_legend',
                                    'add_device',
                                    'delete_last_device',
                                    'clear_devices']
                        },
-                '作图': {'Item': ['暗态线性曲线',
-                                '光态线性曲线',
-                                '器件线性曲线',
-                                '暗态对数曲线',
-                                '光态对数曲线',
-                                '器件对数曲线'],
+                '作图': {'Item': ['暗态线性曲线 (1)',
+                                '光态线性曲线 (2)',
+                                '器件线性曲线 (3)',
+                                '暗态对数曲线 (4)',
+                                '光态对数曲线 (5)',
+                                '器件对数曲线 (Space)'],
                        'Command': ['plot_dark_line_curves',
                                    'plot_light_line_curves',
                                    'plot_device_line_curves',
@@ -47,8 +47,8 @@ CN_MENU_DICT = {'文件': {'Item': ['选择器件数据',
                                    'plot_light_log_curves',
                                    'plot_device_log_curves']
                        },
-                '设置': {'Item': ['参数设置',
-                                '作图设置'],
+                '设置': {'Item': ['参数设置 (O)',
+                                '作图设置 (P)'],
                        'Command': ['parameters_settings',
                                    'plot_settings']
                        },
@@ -58,28 +58,28 @@ CN_MENU_DICT = {'文件': {'Item': ['选择器件数据',
                                    'language_english']
                        }
                 }
-EN_MENU_DICT = {'File': {'Item': ['Select Device Data',
-                                  'Select Silicon Device Data',
-                                  'Export Excel File',
+EN_MENU_DICT = {'File': {'Item': ['Select Device Data (D)',
+                                  'Select Silicon Device Data (S)',
+                                  'Export Excel File (E)',
                                   'Exit'],
                          'Command': ['select_device_data',
                                      'select_silicon_device_data',
                                      'export_excel',
                                      'exit_program']},
-                'Device': {'Item': ['Modify Legend',
-                                    'Add Device',
-                                    'Delete Last Device',
-                                    'Clear Devices'],
+                'Device': {'Item': ['Modify Legend (M)',
+                                    'Add Device (A)',
+                                    'Delete Last Device (Back)',
+                                    'Clear Devices (C)'],
                            'Command': ['modify_legend',
                                        'add_device',
                                        'delete_last_device',
                                        'clear_devices']},
-                'Plot': {'Item': ['Plot Dark Line Curves',
-                                  'Plot Light Line Curves',
-                                  'Plot Device Line Curves',
-                                  'Plot Dark Log Curves',
-                                  'Plot Light Log Curves',
-                                  'Plot Device Log Curves'],
+                'Plot': {'Item': ['Plot Dark Line Curves (1)',
+                                  'Plot Light Line Curves (2)',
+                                  'Plot Device Line Curves (3)',
+                                  'Plot Dark Log Curves (4)',
+                                  'Plot Light Log Curves (5)',
+                                  'Plot Device Log Curves (Space)'],
                          'Command': ['plot_dark_line_curves',
                                      'plot_light_line_curves',
                                      'plot_device_line_curves',
@@ -87,8 +87,8 @@ EN_MENU_DICT = {'File': {'Item': ['Select Device Data',
                                      'plot_light_log_curves',
                                      'plot_device_log_curves']
                          },
-                'Settings': {'Item': ['Parameters Settings',
-                                      'Plot Settings'],
+                'Settings': {'Item': ['Parameters Settings (O)',
+                                      'Plot Settings (P)'],
                              'Command': ['parameters_settings',
                                          'plot_settings']
                              },
@@ -155,8 +155,9 @@ class LegendSettingWindow(tk.Toplevel):
         ttk.Button(self.frm,
                    text='SAVE',
                    command=self.legend_setting_save).grid(row=0, column=2, padx=5, pady=5, sticky=tk.W)
+        self.bind("<Return>", self.legend_setting_save)
 
-    def legend_setting_save(self):
+    def legend_setting_save(self, event=None):
         # 保存图例设置
         global legend_list
         if len(legend_list) > device_num:
@@ -224,6 +225,10 @@ class ParaSettingWindow(tk.Toplevel):
         ttk.Button(self.frm_para_setting_btn,
                    text='RESET',
                    command=self.para_setting_reset).grid(row=0, column=2, padx=5, pady=10)
+        self.bind("<Return>", self.para_setting_save)
+        self.bind("<Escape>", self.para_setting_cancel)
+        self.bind("<r>", self.para_setting_reset)
+        self.bind("<R>", self.para_setting_reset)
 
     def set_values(self):
         # 从参数设置中导入参数
@@ -231,18 +236,18 @@ class ParaSettingWindow(tk.Toplevel):
         self.tv_power_mw.set(pas.power_mw)
         self.tv_wavelength_nm.set(pas.wavelength_nm)
 
-    def para_setting_save(self):
+    def para_setting_save(self, event=None):
         # 保存参数设置
         pas.area_cm2 = float(self.tv_area_cm2.get()) if self.tv_area_cm2.get() else 0.0706858
         pas.power_mw = float(self.tv_power_mw.get()) if self.tv_power_mw.get() else 1
         pas.wavelength_nm = float(self.tv_wavelength_nm.get()) if self.tv_wavelength_nm.get() else 970
         self.destroy()
 
-    def para_setting_cancel(self):
+    def para_setting_cancel(self, event=None):
         # 取消参数设置
         self.destroy()
 
-    def para_setting_reset(self):
+    def para_setting_reset(self, event=None):
         # 重置参数设置
         global pas
         pas = ParaSettings()
@@ -404,6 +409,10 @@ class PlotSettingWindow(tk.Toplevel):
         ttk.Button(self.frm_plot_setting_btn,
                    text='RESET',
                    command=self.plot_setting_reset).grid(row=0, column=2, padx=5, pady=10)
+        self.bind("<Return>", self.plot_setting_save)
+        self.bind("<Escape>", self.plot_setting_cancel)
+        self.bind("<r>", self.plot_setting_reset)
+        self.bind("<R>", self.plot_setting_reset)
 
     def set_values(self):
         # 从作图设置中导入参数
@@ -420,7 +429,7 @@ class PlotSettingWindow(tk.Toplevel):
         self.tv_log_y_min.set(pls.log_y_min)
         self.tv_log_y_max.set(pls.log_y_max)
 
-    def plot_setting_save(self):
+    def plot_setting_save(self, event=None):
         # 保存作图设置
         pls.line_x_label = self.tv_line_x_label.get()
         pls.line_y_label = self.tv_line_y_label.get()
@@ -436,11 +445,11 @@ class PlotSettingWindow(tk.Toplevel):
         pls.log_y_max = float(self.tv_log_y_max.get()) if self.tv_log_y_max.get() else ''
         self.destroy()
 
-    def plot_setting_cancel(self):
+    def plot_setting_cancel(self, event=None):
         # 取消作图设置
         self.destroy()
 
-    def plot_setting_reset(self):
+    def plot_setting_reset(self, event=None):
         # 重置作图设置
         global pls
         pls = PlotSettings()
@@ -480,6 +489,32 @@ class AppMenu(object):
             # 判断菜单不可用情况
             if not device_list and (key in ('器件', 'Device', '作图', 'Plot')):
                 self.menu_bar.entryconfig(key, state=tk.DISABLED)
+        # 快捷键
+        self.root.bind("<d>", self.select_device_data)
+        self.root.bind("<D>", self.select_device_data)
+        self.root.bind("<s>", self.select_silicon_device_data)
+        self.root.bind("<S>", self.select_silicon_device_data)
+        self.root.bind("<e>", self.export_excel)
+        self.root.bind("<E>", self.export_excel)
+        self.root.bind("<m>", self.modify_legend)
+        self.root.bind("<M>", self.modify_legend)
+        self.root.bind("<BackSpace>", self.delete_last_device)
+        self.root.bind("<c>", self.clear_devices)
+        self.root.bind("<C>", self.clear_devices)
+        self.root.bind("<1>", self.plot_dark_line_curves)
+        self.root.bind("<2>", self.plot_light_line_curves)
+        self.root.bind("<3>", self.plot_device_line_curves)
+        self.root.bind("<4>", self.plot_dark_log_curves)
+        self.root.bind("<5>", self.plot_light_log_curves)
+        self.root.bind("<6>", self.plot_device_log_curves)
+        self.root.bind("<space>", self.plot_device_log_curves)
+        self.root.bind("<a>", self.add_device)
+        self.root.bind("<A>", self.add_device)
+        self.root.bind("<Return>", self.add_device)
+        self.root.bind("<o>", self.parameters_settings)
+        self.root.bind("<O>", self.parameters_settings)
+        self.root.bind("<p>", self.plot_settings)
+        self.root.bind("<P>", self.plot_settings)
         # 添加菜单栏到窗口
         self.root.config(menu=self.menu_bar)
 
@@ -544,7 +579,7 @@ class AppMenu(object):
             butt_delete.grid(row=index + 2, column=device.results.columns.size, padx=10, pady=1)
             delete_buttons.append(butt_delete)
 
-    def select_device_data(self):
+    def select_device_data(self, event=None):
         # 选择器件数据
         global device_list
         paths = list(filedialog.askopenfilenames(filetypes=[('Text Files', '*.txt*')]))
@@ -554,7 +589,7 @@ class AppMenu(object):
             self.show_results(device)
         self.root.add_menu(AppMenu, self.menu_dict)
 
-    def select_silicon_device_data(self):
+    def select_silicon_device_data(self, event=None):
         # 选择硅片器件数据
         global device_list
         paths = list(filedialog.askopenfilenames(filetypes=[('Text Files', '*.txt*')]))
@@ -565,7 +600,7 @@ class AppMenu(object):
         self.root.add_menu(AppMenu, self.menu_dict)
 
     @staticmethod
-    def export_excel():
+    def export_excel(event=None):
         # 导出excel
         if device_list:
             excel_path = filedialog.asksaveasfilename(filetypes=[('Excel Files', '*.xlsx')])
@@ -578,16 +613,16 @@ class AppMenu(object):
                 writer.save()
 
     @staticmethod
-    def exit_program():
+    def exit_program(event=None):
         # 退出
         sys.exit()
 
     @staticmethod
-    def modify_legend():
+    def modify_legend(event=None):
         # 修改图例
         LegendSettingWindow()
 
-    def add_device(self):
+    def add_device(self, event=None):
         # 添加器件
         global device_num, delete_buttons
         if len(device_list) > device_num:
@@ -597,7 +632,7 @@ class AppMenu(object):
             delete_buttons = []
         self.root.add_menu(AppMenu, self.menu_dict)
 
-    def delete_last_device(self):
+    def delete_last_device(self, event=None):
         # 删除上一个器件
         global device_num
         if device_list:
@@ -608,7 +643,7 @@ class AppMenu(object):
             device_num = len(device_list)
         self.root.add_menu(AppMenu, self.menu_dict)
 
-    def clear_devices(self):
+    def clear_devices(self, event=None):
         # 清空器件
         global device_list, device_num, legend_list, frame_list
         device_list = []
@@ -620,7 +655,7 @@ class AppMenu(object):
         self.root.add_menu(AppMenu, self.menu_dict)
 
     @staticmethod
-    def plot_dark_line_curves():
+    def plot_dark_line_curves(event=None):
         # 作暗态线性曲线
         if device_list:
             Plot.plot_line_curves('Dark Line Curves',
@@ -635,7 +670,7 @@ class AppMenu(object):
                                   legend_list)
 
     @staticmethod
-    def plot_light_line_curves():
+    def plot_light_line_curves(event=None):
         # 作光态线性曲线
         if device_list:
             Plot.plot_line_curves('Light Line Curves',
@@ -650,7 +685,7 @@ class AppMenu(object):
                                   legend_list)
 
     @staticmethod
-    def plot_device_line_curves():
+    def plot_device_line_curves(event=None):
         # 作器件线性曲线
         if device_list:
             Plot.plot_line_curves('Device Line Curves',
@@ -665,7 +700,7 @@ class AppMenu(object):
                                   legend_list)
 
     @staticmethod
-    def plot_dark_log_curves():
+    def plot_dark_log_curves(event=None):
         # 作暗态对数曲线
         if device_list:
             Plot.plot_log_curves('Dark Log Curves',
@@ -680,7 +715,7 @@ class AppMenu(object):
                                  legend_list)
 
     @staticmethod
-    def plot_light_log_curves():
+    def plot_light_log_curves(event=None):
         # 作光态对数曲线
         if device_list:
             Plot.plot_log_curves('Light Log Curves',
@@ -695,7 +730,7 @@ class AppMenu(object):
                                  legend_list)
 
     @staticmethod
-    def plot_device_log_curves():
+    def plot_device_log_curves(event=None):
         # 作光态对数曲线
         if device_list:
             Plot.plot_log_curves('Light Log Curves',
@@ -710,20 +745,20 @@ class AppMenu(object):
                                  legend_list)
 
     @staticmethod
-    def parameters_settings():
+    def parameters_settings(event=None):
         # 参数设置
         ParaSettingWindow()
 
     @staticmethod
-    def plot_settings():
+    def plot_settings(event=None):
         # 作图设置
         PlotSettingWindow()
 
-    def language_simple_chinese(self):
+    def language_simple_chinese(self, event=None):
         # 语言-简体中文
         self.root.add_menu(AppMenu, CN_MENU_DICT)
 
-    def language_english(self):
+    def language_english(self, event=None):
         # 语言-英文
         self.root.add_menu(AppMenu, EN_MENU_DICT)
 
